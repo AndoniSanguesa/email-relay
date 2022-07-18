@@ -62,11 +62,13 @@ class EmailClient():
         """Receives server responses. Dictates whether to upate magic number or not.
         """
         data = None
-        while data != b"d":
+        while data not in [b"d", b"f"]:
             data = self.socket.recv(1)
             
             if data == b"u":
                 self.update_magic()
+        
+        return True if data == b"d" else False
 
     def send(self, email, subject, data):
         """Sends request to server
@@ -76,14 +78,18 @@ class EmailClient():
             subject (string): The subject of the email
             data (string): The contents of the email
         """
+        result = False
+
         packet = b""
-        packet += socket.htons(len(email))
-        packet += socket.htons(len(subject))
-        packet += socket.htonl(len(data))
+        packet += f"{socket.htons(len(email)):04b}".encode()
+        packet += f"{socket.htons(len(subject)):04b}".encode()
+        packet += f"{socket.htonl(len(data)):08b}".encode()
         packet += rsa.encrypt(MAGIC.encode(), RSA_PUB_KEY)
         packet += email.encode()
         packet += subject.encode()
         packet += data.encode()
-        self.socket.send(packet)
 
-        self.receive()
+        while not result:
+            self.socket.send(packet)
+
+            result = self.receive()

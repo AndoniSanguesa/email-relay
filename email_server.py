@@ -50,7 +50,7 @@ while True:
 
             if len(header_data) != 16:
                 print("Invalid header data")
-                s.sendall(b"d")
+                s.sendall(b"f")
                 continue
 
             # Parses header data
@@ -65,7 +65,7 @@ while True:
                 print("Invalid magic number")
                 # Tells client to update it's magic number
                 s.sendall(b"u")
-                s.sendall(b"d")
+                s.sendall(b"f")
                 continue
 
             # Updates magic number in file
@@ -85,7 +85,7 @@ while True:
 
     if not email or not data:
         print("Invalid email or data")
-        s.sendall(b"d")
+        s.sendall(b"f")
         continue
 
     # Generates Message
