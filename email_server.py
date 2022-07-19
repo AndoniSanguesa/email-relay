@@ -54,9 +54,9 @@ while True:
                 continue
 
             # Parses header data
-            email_len = socket.ntohs(header_data[0:4])
-            subject_len = socket.ntohs(header_data[4:8])
-            data_len = socket.ntohl(header_data[8:16])
+            email_len = socket.ntohs(int.from_bytes(header_data[0:4]))
+            subject_len = socket.ntohs(int.from_bytes(header_data[4:8]))
+            data_len = socket.ntohl(int.from_bytes(header_data[8:16]))
 
             # Decodes magic number and validates it
             magic = rsa.decrypt(conn.recv(64), RSA_PRIV_KEY).decode()
