@@ -24,11 +24,11 @@ SENDER = os.getenv('SENDER')
 RECEIVER = [os.getenv('RECEIVER')]
 
 # Reads current magic number from file
-with open(os.getenv('MAGIC_FILE')) as f:
+with open(os.getenv('MAGIC_FILE'), "rb") as f:
     MAGIC = f.read()
 
 # Reads current RSA private key from file
-with open(os.getenv('RSA_PRIV_KEY_FILE', "rb")) as f:
+with open(os.getenv('RSA_PRIV_KEY_FILE'), "rb") as f:
     RSA_PRIV_KEY = pickle.load(f)
 
 while True:

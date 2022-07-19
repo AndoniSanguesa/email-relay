@@ -17,7 +17,7 @@ MAGIC = None
 RSA_PUB_KEY = None
 
 # Reads current magic number from file
-with open(os.getenv('MAGIC_FILE')) as f:
+with open(os.getenv('MAGIC_FILE'), "rb") as f:
     MAGIC = f.read()
 
 # Reads RSA public key from file
