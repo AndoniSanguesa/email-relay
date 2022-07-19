@@ -56,7 +56,7 @@ class EmailClient():
 
         random.seed(MAGIC)
         with open(os.getenv('MAGIC_FILE'), 'w') as f:
-            f.write(random.randbytes(63))
+            f.write(random.randbytes(53))
 
     def receive(self):
         """Receives server responses. Dictates whether to upate magic number or not.
@@ -84,7 +84,7 @@ class EmailClient():
         packet += f"{socket.htons(len(email)):04b}".encode()
         packet += f"{socket.htons(len(subject)):04b}".encode()
         packet += f"{socket.htonl(len(data)):08b}".encode()
-        packet += rsa.encrypt(MAGIC.encode(), RSA_PUB_KEY)
+        packet += rsa.encrypt(MAGIC, RSA_PUB_KEY)
         packet += email.encode()
         packet += subject.encode()
         packet += data.encode()
