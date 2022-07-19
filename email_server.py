@@ -28,8 +28,8 @@ with open(os.getenv('MAGIC_FILE')) as f:
     MAGIC = f.read()
 
 # Reads current RSA private key from file
-with open(os.getenv('RSA_PRIV_KEY_FILE')) as f:
-    RSA_PRIV_KEY = pickle.load(f.read())
+with open(os.getenv('RSA_PRIV_KEY_FILE', "rb")) as f:
+    RSA_PRIV_KEY = pickle.load(f)
 
 while True:
     # Creates empty data variables
