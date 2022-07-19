@@ -70,7 +70,7 @@ while True:
 
             # Updates magic number in file
             random.seed(MAGIC)
-            MAGIC = random.randbytes(63)
+            MAGIC = random.randbytes(53)
 
             with open(os.getenv('MAGIC_FILE'), 'wb') as f:
                 f.write(MAGIC)
