@@ -31,16 +31,18 @@ with open(os.getenv('MAGIC_FILE'), "rb") as f:
 with open(os.getenv('RSA_PRIV_KEY_FILE'), "rb") as f:
     RSA_PRIV_KEY = pickle.load(f)
 
-while True:
-    # Creates empty data variables
-    email = None
-    subject = None
-    data = None
 
-    # Creates socket
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        # Binds to socket and waits for a connection
-        s.bind((HOST, LISTEN_PORT))
+# Creates socket
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    # Binds to socket and waits for a connection
+    s.bind((HOST, LISTEN_PORT))
+
+    while True:
+        # Creates empty data variables
+        email = None
+        subject = None
+        data = None
+
         s.listen()
         conn, addr = s.accept()
 
