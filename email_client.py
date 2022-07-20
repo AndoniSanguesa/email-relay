@@ -98,5 +98,6 @@ class EmailClient():
             self.socket.sendall(packet)
 
             result = self.receive()
+            self.socket.sendall(b"a")
             if not result:
                 self.connect(self.address, self.port)

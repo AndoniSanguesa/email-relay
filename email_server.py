@@ -51,6 +51,7 @@ while True:
             if len(header_data) != 12:
                 print("Invalid header data")
                 conn.sendall(b"f")
+                conn.recv(1)
                 continue
 
             # Parses header data
@@ -71,6 +72,7 @@ while True:
                 # Tells client to update it's magic number
                 conn.sendall(b"u")
                 conn.sendall(b"f")
+                conn.recv(1)
                 continue
 
             # Updates magic number in file
@@ -86,6 +88,7 @@ while True:
             if not email or not data:
                 print("Invalid email or data")
                 conn.sendall(b"f")
+                conn.recv(1)
                 continue
 
             # Generates Message
@@ -99,3 +102,4 @@ while True:
                 server.sendmail(SENDER, RECEIVER, msg.as_string())
 
             conn.sendall(b"d")
+            conn.recv(1)
