@@ -58,6 +58,8 @@ class EmailClient():
         """
         global MAGIC
 
+        print("Updating magic number")
+
         random.seed(MAGIC)
         MAGIC = random.randbytes(53)
         with open(os.getenv('MAGIC_FILE'), 'wb') as f:
@@ -85,16 +87,15 @@ class EmailClient():
         """
         result = False
 
-        packet = b""
-        packet += len(email).to_bytes(4, byteorder="big")
-        packet += len(subject).to_bytes(4, byteorder="big")
-        packet += len(data).to_bytes(4, byteorder="big")
-        packet += rsa.encrypt(MAGIC, RSA_PUB_KEY)
-        packet += email.encode()
-        packet += subject.encode()
-        packet += data.encode()
-
         while not result:
+            packet = b""
+            packet += len(email).to_bytes(4, byteorder="big")
+            packet += len(subject).to_bytes(4, byteorder="big")
+            packet += len(data).to_bytes(4, byteorder="big")
+            packet += rsa.encrypt(MAGIC, RSA_PUB_KEY)
+            packet += email.encode()
+            packet += subject.encode()
+            packet += data.encode()
             self.socket.sendall(packet)
 
             result = self.receive()
