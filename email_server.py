@@ -50,22 +50,27 @@ while True:
 
             if len(header_data) != 12:
                 print("Invalid header data")
-                s.sendall(b"f")
+                conn.sendall(b"f")
                 continue
 
             # Parses header data
-            email_len = socket.ntohl(header_data[0:4])
-            subject_len = socket.ntohl(header_data[4:8])
-            data_len = socket.ntohl(header_data[8:12])
+            email_len = int.from_bytes(header_data[0:4], byteorder='big')
+            subject_len = int.from_bytes(header_data[4:8], byteorder='big')
+            data_len = int.from_bytes(header_data[8:12], byteorder='big')
 
             # Decodes magic number and validates it
-            magic = rsa.decrypt(conn.recv(64), RSA_PRIV_KEY).decode()
+            magic = rsa.decrypt(conn.recv(64), RSA_PRIV_KEY)
+
+            # Collects email and content data 
+            email = conn.recv(email_len)
+            subject = conn.recv(subject_len)
+            data = conn.recv(data_len)
 
             if magic != MAGIC:
                 print("Invalid magic number")
                 # Tells client to update it's magic number
-                s.sendall(b"u")
-                s.sendall(b"f")
+                conn.sendall(b"u")
+                conn.sendall(b"f")
                 continue
 
             # Updates magic number in file
@@ -76,16 +81,11 @@ while True:
                 f.write(MAGIC)
 
             # Tells client to update it's magic number
-            s.sendall(b"u")
-
-        # Collects email and content data 
-            email = conn.recv(email_len)
-            subject = conn.recv(subject_len)
-            data = conn.recv(data_len)
+            conn.sendall(b"u")
 
     if not email or not data:
         print("Invalid email or data")
-        s.sendall(b"f")
+        conn.sendall(b"f")
         continue
 
     # Generates Message
@@ -98,4 +98,4 @@ while True:
     with smtplib.SMTP(HOST, SMTP_PORT) as server:
         server.sendmail(SENDER, RECEIVER, msg.as_string())
     
-    s.sendall(b"d")
+    conn.sendall(b"d")
