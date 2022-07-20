@@ -95,7 +95,7 @@ while True:
             msg["To"] = email.decode("utf-8")
 
             # Sends email
-            # with smtplib.SMTP(HOST, SMTP_PORT) as server:
-            #     server.sendmail(SENDER, RECEIVER, msg.as_string())
-            print("SENT EMAIL")
+            with smtplib.SMTP(HOST, SMTP_PORT) as server:
+                server.sendmail(SENDER, RECEIVER, msg.as_string())
+
             conn.sendall(b"d")
