@@ -83,19 +83,19 @@ while True:
             # Tells client to update it's magic number
             conn.sendall(b"u")
 
-    if not email or not data:
-        print("Invalid email or data")
-        conn.sendall(b"f")
-        continue
+            if not email or not data:
+                print("Invalid email or data")
+                conn.sendall(b"f")
+                continue
 
-    # Generates Message
-    msg = MIMEText("A Message from the server")
-    msg['Subject'] = subject.decode()
-    msg["From"] = SENDER
-    msg["To"] = email.decode("utf-8")
+            # Generates Message
+            msg = MIMEText("A Message from the server")
+            msg['Subject'] = subject.decode()
+            msg["From"] = SENDER
+            msg["To"] = email.decode("utf-8")
 
-    # Sends email
-    with smtplib.SMTP(HOST, SMTP_PORT) as server:
-        server.sendmail(SENDER, RECEIVER, msg.as_string())
-    
-    conn.sendall(b"d")
+            # Sends email
+            # with smtplib.SMTP(HOST, SMTP_PORT) as server:
+            #     server.sendmail(SENDER, RECEIVER, msg.as_string())
+            print("SENT EMAIL")
+            conn.sendall(b"d")
