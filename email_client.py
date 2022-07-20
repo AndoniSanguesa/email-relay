@@ -6,7 +6,7 @@ import rsa
 import random
 
 #  Application Layer Protocol:
-# |   4 bytes    |     4 bytes    |  8 bytes    |  64 bytes  | x bytes | y bytes | z bytes |
+# |   4 bytes    |     4 bytes    |  4 bytes    |  64 bytes  | x bytes | y bytes | z bytes |
 # | email length | subject length | data length |  magic rsa |  email  | subject |  data   |
 
 # Loads environment variables from .env file
@@ -81,9 +81,9 @@ class EmailClient():
         result = False
 
         packet = b""
-        packet += f"{socket.htons(len(email)):04b}".encode()
-        packet += f"{socket.htons(len(subject)):04b}".encode()
-        packet += f"{socket.htonl(len(data)):08b}".encode()
+        packet += len(email).to_bytes(4, byteorder="big")
+        packet += len(subject).to_bytes(4, byteorder="big")
+        packet += len(data).to_bytes(4, byteorder="big")
         packet += rsa.encrypt(MAGIC, RSA_PUB_KEY)
         packet += email.encode()
         packet += subject.encode()

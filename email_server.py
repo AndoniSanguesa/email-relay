@@ -8,7 +8,7 @@ import pickle
 import rsa
 
 #  Application Layer Protocol:
-# |   4 bytes    |     4 bytes    |  8 bytes    |  64 bytes  | x bytes | y bytes | z bytes |
+# |   4 bytes    |     4 bytes    |  4 bytes    |  64 bytes  | x bytes | y bytes | z bytes |
 # | email length | subject length | data length |  magic rsa |  email  | subject |  data   |
 
 # Loads environment variables from .env file
@@ -46,17 +46,17 @@ while True:
 
         with conn:
             # Receives header data and validates length
-            header_data = conn.recv(16)
+            header_data = conn.recv(12)
 
-            if len(header_data) != 16:
+            if len(header_data) != 12:
                 print("Invalid header data")
                 s.sendall(b"f")
                 continue
 
             # Parses header data
-            email_len = socket.ntohs(header_data[0:4])
-            subject_len = socket.ntohs(header_data[4:8])
-            data_len = socket.ntohl(header_data[8:16])
+            email_len = socket.ntohl(header_data[0:4])
+            subject_len = socket.ntohl(header_data[4:8])
+            data_len = socket.ntohl(header_data[8:12])
 
             # Decodes magic number and validates it
             magic = rsa.decrypt(conn.recv(64), RSA_PRIV_KEY).decode()
