@@ -30,6 +30,8 @@ class EmailClient():
     """
     def __init__(self):
         self.socket = None
+        self.address = None
+        self.port = None
 
     def connect(self, address, port):
         """
@@ -39,6 +41,8 @@ class EmailClient():
             address (string): The address of the server
             port (int): The port of the server
         """
+        self.address = address
+        self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((address, port))
         self.socket.settimeout(0.5)
@@ -55,7 +59,7 @@ class EmailClient():
         global MAGIC
 
         random.seed(MAGIC)
-        with open(os.getenv('MAGIC_FILE'), 'w') as f:
+        with open(os.getenv('MAGIC_FILE'), 'wb') as f:
             f.write(random.randbytes(53))
 
     def receive(self):
@@ -90,6 +94,8 @@ class EmailClient():
         packet += data.encode()
 
         while not result:
-            self.socket.send(packet)
+            self.socket.sendall(packet)
 
             result = self.receive()
+            if not result:
+                self.connect(self.address, self.port)
