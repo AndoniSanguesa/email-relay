@@ -4,6 +4,7 @@ import os
 import pickle
 import rsa
 import random
+import unidecode
 
 #  Application Layer Protocol:
 # |   4 bytes    |     4 bytes    |  4 bytes    |  64 bytes  | x bytes | y bytes | z bytes |
@@ -78,6 +79,9 @@ class EmailClient():
         return True if data == b"d" else False
 
     def send(self, email, subject, data):
+
+        data = unidecode.unidecode(data)
+
         """Sends request to server
 
         Args:
@@ -89,9 +93,9 @@ class EmailClient():
 
         while not result:
             packet = b""
-            packet += len(email).to_bytes(4, byteorder="big")
-            packet += len(subject).to_bytes(4, byteorder="big")
-            packet += len(data).to_bytes(4, byteorder="big")
+            packet += len(email.encode()).to_bytes(4, byteorder="big")
+            packet += len(subject.encode()).to_bytes(4, byteorder="big")
+            packet += len(data.encode()).to_bytes(4, byteorder="big")
             packet += rsa.encrypt(MAGIC, RSA_PUB_KEY)
             packet += email.encode()
             packet += subject.encode()
