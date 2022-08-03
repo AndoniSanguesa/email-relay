@@ -38,70 +38,74 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, LISTEN_PORT))
 
     while True:
-        # Creates empty data variables
-        email = None
-        subject = None
-        data = None
+        try:
+            # Creates empty data variables
+            email = None
+            subject = None
+            data = None
 
-        s.listen()
-        conn, addr = s.accept()
+            s.listen()
+            conn, addr = s.accept()
 
-        with conn:
-            # Receives header data and validates length
-            header_data = conn.recv(12)
+            with conn:
+                # Receives header data and validates length
+                header_data = conn.recv(12)
 
-            if len(header_data) != 12:
-                print("Invalid header data")
-                conn.sendall(b"f")
-                conn.recv(1)
-                continue
+                if len(header_data) != 12:
+                    print("Invalid header data")
+                    conn.sendall(b"f")
+                    conn.recv(1)
+                    continue
 
-            # Parses header data
-            email_len = int.from_bytes(header_data[0:4], byteorder='big')
-            subject_len = int.from_bytes(header_data[4:8], byteorder='big')
-            data_len = int.from_bytes(header_data[8:12], byteorder='big')
+                # Parses header data
+                email_len = int.from_bytes(header_data[0:4], byteorder='big')
+                subject_len = int.from_bytes(header_data[4:8], byteorder='big')
+                data_len = int.from_bytes(header_data[8:12], byteorder='big')
 
-            # Decodes magic number and validates it
-            magic = rsa.decrypt(conn.recv(64), RSA_PRIV_KEY)
+                # Decodes magic number and validates it
+                magic = rsa.decrypt(conn.recv(64), RSA_PRIV_KEY)
 
-            # Collects email and content data 
-            email = conn.recv(email_len)
-            subject = conn.recv(subject_len)
-            data = conn.recv(data_len)
+                # Collects email and content data 
+                email = conn.recv(email_len)
+                subject = conn.recv(subject_len)
+                data = conn.recv(data_len)
 
-            if magic != MAGIC:
-                print("Invalid magic number")
+                if magic != MAGIC:
+                    print("Invalid magic number")
+                    # Tells client to update it's magic number
+                    conn.sendall(b"u")
+                    conn.sendall(b"f")
+                    conn.recv(1)
+                    continue
+
+                # Updates magic number in file
+                random.seed(MAGIC)
+                MAGIC = random.randbytes(53)
+
+                with open(os.getenv('MAGIC_FILE'), 'wb') as f:
+                    f.write(MAGIC)
+
                 # Tells client to update it's magic number
                 conn.sendall(b"u")
-                conn.sendall(b"f")
+
+                if not email or not data:
+                    print("Invalid email or data")
+                    conn.sendall(b"f")
+                    conn.recv(1)
+                    continue
+
+                # Generates Message
+                msg = MIMEText(data.decode())
+                msg['Subject'] = subject.decode()
+                msg["From"] = SENDER
+                msg["To"] = email.decode("utf-8")
+
+                # Sends email
+                with smtplib.SMTP(HOST, SMTP_PORT) as server:
+                    server.sendmail(SENDER, RECEIVER, msg.as_string())
+
+                conn.sendall(b"d")
                 conn.recv(1)
-                continue
-
-            # Updates magic number in file
-            random.seed(MAGIC)
-            MAGIC = random.randbytes(53)
-
-            with open(os.getenv('MAGIC_FILE'), 'wb') as f:
-                f.write(MAGIC)
-
-            # Tells client to update it's magic number
-            conn.sendall(b"u")
-
-            if not email or not data:
-                print("Invalid email or data")
-                conn.sendall(b"f")
-                conn.recv(1)
-                continue
-
-            # Generates Message
-            msg = MIMEText(data.decode())
-            msg['Subject'] = subject.decode()
-            msg["From"] = SENDER
-            msg["To"] = email.decode("utf-8")
-
-            # Sends email
-            with smtplib.SMTP(HOST, SMTP_PORT) as server:
-                server.sendmail(SENDER, RECEIVER, msg.as_string())
-
-            conn.sendall(b"d")
-            conn.recv(1)
+        except ConnectionResetError as e:
+            print(e)
+            continue
