@@ -53,6 +53,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             if len(header_data) != 12:
                 print("Invalid header data")
                 conn.sendall(b"f")
+                conn.recv(1)
                 continue
 
             # Parses header data
@@ -73,6 +74,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 # Tells client to update it's magic number
                 conn.sendall(b"u")
                 conn.sendall(b"f")
+                conn.recv(1)
                 continue
 
             # Updates magic number in file
@@ -88,6 +90,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             if not email or not data:
                 print("Invalid email or data")
                 conn.sendall(b"f")
+                conn.recv(1)
                 continue
 
             # Generates Message
@@ -101,3 +104,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 server.sendmail(SENDER, RECEIVER, msg.as_string())
 
             conn.sendall(b"d")
+            conn.recv(1)
